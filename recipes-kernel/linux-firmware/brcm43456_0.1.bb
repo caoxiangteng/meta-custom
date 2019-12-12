@@ -9,11 +9,11 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 SRC_URI = "file://files "
 
-
+#INHIBIT_PACKAGE_STRIP = "1"
 S = "${WORKDIR}/files"
 RDEPENDS_${PN} += "gpio_ctrl"
 do_compile() {
-	    ${CC} brcm_patchram_plus.c -o brcm_patchram_plus
+#	    ${CC} brcm_patchram_plus.c -o brcm_patchram_plus
 		make
 }
 
@@ -30,8 +30,10 @@ do_install() {
 	    install -m 0755 gpio_ctrl_test ${D}${bindir}
 
 		install -d ${D}${sysconfdir}/init.d/
-		install -m 0755 bt-wifi-setup.sh ${D}${sysconfdir}/init.d/bt-wifi-setup.sh
-		update-rc.d -r ${D} bt-wifi-setup.sh start 99 2 3 5 .
+		install -m 0755 ble_setup.sh ${D}${sysconfdir}/init.d/ble_setup.sh
+		install -m 0755 wifi_setup.sh ${D}${sysconfdir}/init.d/wifi_setup.sh
+#		update-rc.d -r ${D} bt-wifi-setup.sh start 99 2 3 5 .
 }
 
 FILES_${PN} += "${base_libdir}/firmware/bcm/*"
+

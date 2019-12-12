@@ -1,12 +1,16 @@
-#LIBS:= -L/usr/lib/ -lgpioctrl -ldl
-LIBS:= -L${D}${libdir} -lgpioctrl -ldl
+LIBS:= -lgpioctrl -ldl
 
-SOURCES = gpio_ctrl_test.c
-OBJS = $(patsubst %.c, %.o, $(SOURCES))
-TARGET = gpio_ctrl_test
+SOURCES1 = gpio_ctrl_test.c
+OBJS1 = $(patsubst %.c, %.o, $(SOURCES))
+TARGET1 = gpio_ctrl_test
+
+SOURCES2 = brcm_patchram_plus.c
+OBJS1 = $(patsubst %.c, %.o, $(SOURCES))
+TARGET2 = brcm_patchram_plus
 
 all:
-	$(CC) ${CFLAGS}  $(LIBS) $(SOURCES) -o $(TARGET) 
+	$(CC) ${CFLAGS}  $(LIBS) $(SOURCES1) -o $(TARGET1) 
+	$(CC) ${CFLAGS}  $(SOURCES2) -o $(TARGET2) 
 
 clean: 
 	rm -f $(OBJS) $(TARGET) 
