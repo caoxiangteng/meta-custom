@@ -1,0 +1,104 @@
+From 7d15a4e8438dea610517821cbaa0ee17dda6428a Mon Sep 17 00:00:00 2001
+From: caoxiangteng <xiangteng.cao@lifengtechnology.com>
+Date: Fri, 3 Jul 2020 15:55:19 +0800
+Subject: [PATCH] cxt add for fix ble can't open and wifi open failed
+
+---
+ drivers/misc/Kconfig                    |  1 +
+ drivers/net/wireless/bcmdhd/dhd_linux.c |  3 ++-
+ init/do_mounts.c                        | 10 ----------
+ 3 files changed, 3 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 1a1cd2e..4307bec4 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -798,4 +798,5 @@ source "drivers/misc/mic/Kconfig"
+ source "drivers/misc/genwqe/Kconfig"
+ source "drivers/misc/echo/Kconfig"
+ source "drivers/misc/cxl/Kconfig"
++source "drivers/misc/rf_pm/Kconfig"
+ endmenu
+diff --git a/drivers/net/wireless/bcmdhd/dhd_linux.c b/drivers/net/wireless/bcmdhd/dhd_linux.c
+index c65ce77..d0516a1 100644
+--- a/drivers/net/wireless/bcmdhd/dhd_linux.c
++++ b/drivers/net/wireless/bcmdhd/dhd_linux.c
+@@ -13289,7 +13289,8 @@ static int __init
+ dhd_module_init(void)
+ {
+ 	int err;
+-	int retry = POWERUP_MAX_RETRY;
++//	int retry = POWERUP_MAX_RETRY;
++	int retry = 1;
+ 
+ 	printf("%s: in %s\n", __FUNCTION__, dhd_version);
+ 
+diff --git a/init/do_mounts.c b/init/do_mounts.c
+index dec45c4..c4d8455 100644
+--- a/init/do_mounts.c
++++ b/init/do_mounts.c
+@@ -363,11 +363,9 @@ static void __init get_fs_names(char *page)
+ static int __init do_mount_root(char *name, char *fs, int flags, void *data)
+ {
+ 	struct super_block *s;
+-	printk("--cxt-000-%s\n", __func__);
+ 	int err = sys_mount(name, "/root", fs, flags, data);
+ 	if (err)
+ 		return err;
+-	printk("--cxt--%s\n", __func__);
+ 	sys_chdir("/root");
+ 	s = current->fs->pwd.dentry->d_sb;
+ 	ROOT_DEV = s->s_dev;
+@@ -390,13 +388,10 @@ void __init mount_block_root(char *name, int flags)
+ #else
+ 	const char *b = name;
+ #endif
+-	printk("---cxt--%s, b is %s\n", __func__,b);
+ 	get_fs_names(fs_names);
+ retry:
+ 	for (p = fs_names; *p; p += strlen(p)+1) {
+-		printk("--cxt--fs_names is %s,name is %s\n", p,name);
+ 		int err = do_mount_root(name, p, flags, root_mount_data);
+-		printk("--cxt--err is %d\n", err);
+ 		switch (err) {
+ 			case 0:
+ 				goto out;
+@@ -412,7 +407,6 @@ void __init mount_block_root(char *name, int flags)
+ #ifdef CONFIG_BLOCK
+ 		__bdevname(ROOT_DEV, b);
+ #endif
+-		printk("---cxt-111-%s, b is %s\n", __func__, b);
+ 		printk("VFS: Cannot open root device \"%s\" or %s: error %d\n",
+ 				root_device_name, b, err);
+ 		printk("Please append a correct \"root=\" boot option; here are the available partitions:\n");
+@@ -435,11 +429,9 @@ void __init mount_block_root(char *name, int flags)
+ 	for (p = fs_names; *p; p += strlen(p)+1)
+ 		printk(" %s", p);
+ 	printk("\n");
+-	printk("--cxt--00--b is %s\n",b);
+ #ifdef CONFIG_BLOCK
+ 	__bdevname(ROOT_DEV, b);
+ #endif
+-	printk("--cxt--111--b is %s\n",b);
+ 	panic("VFS: Unable to mount root fs on %s", b);
+ out:
+ 	put_page(page);
+@@ -517,7 +509,6 @@ void __init change_floppy(char *fmt, ...)
+ 
+ void __init mount_root(void)
+ {
+-	printk("--cxt--%s\n", __func__);
+ #ifdef CONFIG_ROOT_NFS
+ 	if (ROOT_DEV == Root_NFS) {
+ 		if (mount_nfs_root())
+@@ -556,7 +547,6 @@ void __init mount_root(void)
+ void __init prepare_namespace(void)
+ {
+ 	int is_floppy;
+-	printk("--cxt--%s\n", __func__);
+ 	if (root_delay) {
+ 		printk(KERN_INFO "Waiting %d sec before mounting root device...\n",
+ 		       root_delay);
+-- 
+2.7.4
+

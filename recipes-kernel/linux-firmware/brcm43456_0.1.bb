@@ -36,4 +36,5 @@ do_install() {
 }
 
 FILES_${PN} += "${base_libdir}/firmware/bcm/*"
+INSANE_SKIP_${PN} = "ldflags"
 
